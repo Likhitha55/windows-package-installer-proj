@@ -78,6 +78,21 @@ stages:
     steps:
 
     - script: |
+          cd terraform
+          terraform init
+          terraform destroy -auto-approve \
+            -var="subnet_id=$(SUBNET_ID)" \
+            -var="vpc_id=$(VPC_ID)" \
+            -var="windows_password=$(WINDOWS_PASSWORD)" || true
+          echo "Old resources cleaned up"
+      displayName: 'Cleanup Previous Resources'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+
+
+    - script: |
         cd terraform
         terraform init
         terraform apply -auto-approve \
