@@ -178,18 +178,49 @@ stages:
         cat /tmp/windows-inventory.ini
       displayName: 'Create Windows Inventory'
 
+   # Warm up WinRM before Ansible runs
     - script: |
-        echo "=== Waiting for WinRM (5 min) ==="
-        for i in $(seq 1 50); do
-          if curl -s -o /dev/null -w "%{http_code}" \
-            http://$(WINDOWS_IP):5985/wsman 2>/dev/null | grep -q "405"; then
-            echo "WinRM is ready!"
-            break
-          fi
-          echo "Attempt $i/30 - waiting 10s..."
-          sleep 10
+        WIN_IP=$(aws ec2 describe-instances \
+          --filters "Name=tag:Name,Values=win-devops-windows-vm" \
+                    "Name=instance-state-name,Values=running" \
+          --query "Reservations[].Instances[].PublicIpAddress" \
+          --output text --region $(AWS_DEFAULT_REGION))
+
+        echo "Warming up WinRM on $WIN_IP..."
+
+        # Send 5 dummy WinRM requests to warm up the service
+        for i in 1 2 3 4 5; do
+          echo "Attempt $i..."
+          python3 -c "
+        import winrm
+        try:
+            s = winrm.Session('http://${WIN_IP}:5985/wsman', auth=('Administrator', '$(WINDOWS_PASSWORD)'), transport='basic')
+            r = s.run_cmd('hostname')
+            print(f'Attempt $i: SUCCESS - {r.std_out.decode().strip()}')
+        except Exception as e:
+            print(f'Attempt $i: {e}')
+        " || true
+          sleep 5
         done
-      displayName: 'Wait for WinRM'
+
+        echo "WinRM warm-up complete"
+    displayName: 'Warm Up WinRM'
+    env:
+      AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+      WINDOWS_PASSWORD: $(WINDOWS_PASSWORD)
+
+    # - script: |
+    #     echo "=== Waiting for WinRM (5 min) ==="
+    #     for i in $(seq 1 50); do
+    #       if curl -s -o /dev/null -w "%{http_code}" \
+    #         http://$(WINDOWS_IP):5985/wsman 2>/dev/null | grep -q "405"; then
+    #         echo "WinRM is ready!"
+    #         break
+    #       fi
+    #       echo "Attempt $i/30 - waiting 10s..."
+    #       sleep 10
+    #     done
+    #   displayName: 'Wait for WinRM'
 
     # - script: |
     #     echo "Waiting for WinRM to be fully ready..."
@@ -213,14 +244,14 @@ stages:
     #   env:
     #     WINDOWS_PASSWORD: $(WINDOWS_PASSWORD)
 
-    - script: |
-        ANSIBLE_ROLES_PATH=$(Build.SourcesDirectory)/ansible/roles \
+  - script: |
+       ANSIBLE_ROLES_PATH=$(Build.SourcesDirectory)/ansible/roles \
         ansible-playbook \
           -i /tmp/windows-inventory.ini \
           ansible/playbooks/deploy-installer.yml \
           -e "package_path=$(System.ArtifactsDirectory)/installer-package/DevOpsToolkit-Setup.zip" \
-          -vv
-      displayName: 'Deploy & Install via Ansible'
+          -vvv
+    displayName: 'Deploy & Install via Ansible'
 
 
 # STAGE 4: Cleanup (Optional — runs always)
