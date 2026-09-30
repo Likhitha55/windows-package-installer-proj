@@ -167,7 +167,7 @@ stages:
 
         [windows_targets:vars]
         ansible_user=Administrator
-        ansible_password=[PASSWORD]!
+        ansible_password=$(WINDOWS_PASSWORD)
         ansible_connection=winrm
         ansible_winrm_transport=basic
         ansible_winrm_server_cert_validation=ignore
