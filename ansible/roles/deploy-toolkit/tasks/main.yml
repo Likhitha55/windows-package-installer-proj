@@ -31,9 +31,7 @@
 
 
 - name: Check what files exist
-  win_shell: |
-    Write-Host "=== All files in install dir ==="
-    Get-ChildItem "C:\DevOpsToolkit" -Recurse | ForEach-Object { Write-Host $_.FullName }
+  win_command: cmd /c dir C:\DevOpsToolkit /s /b
   register: file_list
 
 - name: Show files
