@@ -105,7 +105,7 @@ resource "aws_instance" "windows" {
   netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in action=allow protocol=TCP localport=5985
 
   # 4. Restart WinRM
-  Restart-Service WinRM
+  Restart-Service WinRM -Force
   </powershell>
 EOF
 

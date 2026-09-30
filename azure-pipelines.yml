@@ -191,6 +191,28 @@ stages:
         done
       displayName: 'Wait for WinRM'
 
+    # - script: |
+    #     echo "Waiting for WinRM to be fully ready..."
+    #     WIN_IP=$(cat win_ip.txt)
+    #     for i in $(seq 1 30); do
+    #       echo "Attempt $i/30..."
+    #       if python3 -c "
+    #         import winrm
+    #         s = winrm.Session('http://${WIN_IP}:5985/wsman', auth=('Administrator', '$(WINDOWS_PASSWORD)'), transport='ntlm')
+    #         r = s.run_cmd('hostname')
+    #         print(r.std_out.decode())
+    #         " 2>/dev/null; then
+    #         echo "WinRM is ready!"
+    #         exit 0
+    #       fi
+    #       sleep 10
+    #     done
+    #     echo "WinRM not ready after 5 minutes"
+    #     exit 1
+    #   displayName: 'Wait for WinRM Ready'
+    #   env:
+    #     WINDOWS_PASSWORD: $(WINDOWS_PASSWORD)
+
     - script: |
         ANSIBLE_ROLES_PATH=$(Build.SourcesDirectory)/ansible/roles \
         ansible-playbook \
