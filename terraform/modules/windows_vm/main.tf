@@ -104,7 +104,17 @@ resource "aws_instance" "windows" {
   # 3. Open firewall
   netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in action=allow protocol=TCP localport=5985
 
-  # 4. Restart WinRM
+  # Increase WinRM Shell Limits 
+  Set-Item WSMan:\localhost\Shell\MaxShellsPerUser -Value 50
+  Set-Item WSMan:\localhost\Shell\MaxConcurrentUsers -Value 20
+  Set-Item WSMan:\localhost\Shell\MaxProcessesPerShell -Value 25
+  Set-Item WSMan:\localhost\Shell\MaxMemoryPerShellMB -Value 1024
+
+  # Increase Timeout to prevent expired shells ──
+  Set-Item WSMan:\localhost\Shell\IdleTimeout -Value 7200000
+  # 7200000ms = 2 hours
+
+  # Restart WinRM
   Restart-Service WinRM -Force
   </powershell>
 EOF
