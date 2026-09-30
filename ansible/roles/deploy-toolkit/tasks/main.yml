@@ -74,8 +74,8 @@
       -ArgumentList '/quiet','InstallAllUsers=1','PrependPath=1' -Wait -PassThru | Out-Null
     Write-Output "Python installed"
   register: python_result
-  args:
-    creates: "C:\\Program Files\\Python*\\python.exe"
+  # args:
+  #   creates: "C:\\Program Files\\Python*\\python.exe"
   # /quiet = silent install
   # InstallAllUsers=1 = install for all users
   # PrependPath=1 = add Python to system PATH
