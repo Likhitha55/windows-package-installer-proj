@@ -204,10 +204,10 @@ stages:
         done
 
         echo "WinRM warm-up complete"
-    displayName: 'Warm Up WinRM'
-    env:
-      AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
-      WINDOWS_PASSWORD: $(WINDOWS_PASSWORD)
+      displayName: 'Warm Up WinRM'
+      env:
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+        WINDOWS_PASSWORD: $(WINDOWS_PASSWORD)
 
     # - script: |
     #     echo "=== Waiting for WinRM (5 min) ==="
@@ -244,14 +244,16 @@ stages:
     #   env:
     #     WINDOWS_PASSWORD: $(WINDOWS_PASSWORD)
 
-  - script: |
-       ANSIBLE_ROLES_PATH=$(Build.SourcesDirectory)/ansible/roles \
-        ansible-playbook \
-          -i /tmp/windows-inventory.ini \
-          ansible/playbooks/deploy-installer.yml \
-          -e "package_path=$(System.ArtifactsDirectory)/installer-package/DevOpsToolkit-Setup.zip" \
-          -vvv
-    displayName: 'Deploy & Install via Ansible'
+    - script: |
+        ANSIBLE_ROLES_PATH=$(Build.SourcesDirectory)/ansible/roles \
+          ansible-playbook \
+            -i /tmp/windows-inventory.ini \
+            ansible/playbooks/deploy-installer.yml \
+            -e "package_path=$(System.ArtifactsDirectory)/installer-package/DevOpsToolkit-Setup.zip" \
+            -vvv
+      displayName: 'Deploy & Install via Ansible'
+      env:
+        WINDOWS_PASSWORD: $(WINDOWS_PASSWORD)
 
 
 # STAGE 4: Cleanup (Optional — runs always)
