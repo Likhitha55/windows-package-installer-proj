@@ -29,6 +29,6 @@
     # package_path is passed from pipeline: -e "package_path=/path/to/zip"
 
   roles:
-    - deploy-installer
+    - deploy-toolkit
     # Calls ansible/roles/deploy-installer/tasks/main.yml
 
