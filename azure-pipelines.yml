@@ -177,7 +177,7 @@ stages:
       displayName: 'Wait for WinRM'
 
     - script: |
-        ANSIBLE_CONFIG=ansible/ansible.cfg \
+        ANSIBLE_ROLES_PATH=$(Build.SourcesDirectory)/ansible/roles \
         ansible-playbook \
           -i /tmp/windows-inventory.ini \
           ansible/playbooks/deploy-installer.yml \
