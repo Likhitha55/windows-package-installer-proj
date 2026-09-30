@@ -90,25 +90,24 @@ resource "aws_instance" "windows" {
 
   # UserData: Enable WinRM for Ansible + Set Admin password
   user_data = <<-EOF
-    <powershell>
-    # Set Administrator password
-    $Password = ConvertTo-SecureString "${var.windows_password}" -AsPlainText -Force
-    Set-LocalUser -Name "Administrator" -Password $Password
+  <powershell>
+  # 1. Set password
+  net user Administrator "${var.windows_password}" /active:yes
 
-    # Enable WinRM
-    winrm quickconfig -force
-    winrm set winrm/config/service '@{AllowUnencrypted="true"}'
-    winrm set winrm/config/service/auth '@{Basic="true"}'
-    winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+  # 2. Configure WinRM (CRITICAL — without this, Ansible can't connect)
+  winrm quickconfig -q
+  winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+  winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+  winrm set winrm/config/service/auth '@{Basic="true"}'
+  winrm set winrm/config/client/auth '@{Basic="true"}'
 
-    # Open WinRM port in Windows Firewall
-    netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in action=allow protocol=TCP localport=5985
-    netsh advfirewall firewall add rule name="WinRM-HTTPS" dir=in action=allow protocol=TCP localport=5986
+  # 3. Open firewall
+  netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in action=allow protocol=TCP localport=5985
 
-    # Restart WinRM service
-    Restart-Service WinRM
-    </powershell>
-  EOF
+  # 4. Restart WinRM
+  Restart-Service WinRM
+  </powershell>
+EOF
 
   tags = {
     Name        = "${var.project_name}-windows-vm"
