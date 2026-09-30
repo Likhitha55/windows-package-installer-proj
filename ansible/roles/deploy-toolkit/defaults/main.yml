@@ -1,3 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for deploy-toolkit
+install_dir: C:\DevOpsToolkit
+package_name: devops-toolkit-package
+s3_bucket: devops-toolkit-packages
