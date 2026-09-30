@@ -5,6 +5,7 @@
 # It will be executed against Windows VM via WinRM
 
 # ── Step 1: Create install directory ──
+
 - name: Create install directory
   win_file:
     path: "{{ install_dir }}"
@@ -27,6 +28,17 @@
     dest: "{{ install_dir }}"
   # win_unzip = extracts zip on Windows
   # After this: C:\DevOpsToolkit\components\*.exe
+
+
+- name: Check what files exist
+  win_shell: |
+    Write-Host "=== All files in install dir ==="
+    Get-ChildItem "C:\DevOpsToolkit" -Recurse | ForEach-Object { Write-Host $_.FullName }
+  register: file_list
+
+- name: Show files
+  debug:
+    msg: "{{ file_list.stdout_lines }}"
 
 # ── Step 4: Install Notepad++ ──
 - name: Install Notepad++
