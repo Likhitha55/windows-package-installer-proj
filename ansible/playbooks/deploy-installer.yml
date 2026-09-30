@@ -7,7 +7,7 @@
 
 - name: Deploy and verify DevOps Toolkit on Windows
   hosts: windows_targets
-  gather_facts: true
+  gather_facts: false
   # gather_facts: true = collect Windows system info (hostname, date, etc.)
   # Needed for the installation report
 
