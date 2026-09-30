@@ -4,3 +4,4 @@
 install_dir: C:\DevOpsToolkit
 package_name: devops-toolkit-package
 s3_bucket: devops-toolkit-packages
+package_path: /tmp/devops-toolkit-package.zip

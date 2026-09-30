@@ -5,7 +5,11 @@
 # It will be executed against Windows VM via WinRM
 
 # ── Step 1: Create install directory ──
-
+- name: Create install directory
+  win_file:
+    path: "{{ install_dir }}"
+    state: directory
+    
 - name: Copy package to VM
   win_copy:
     src: "{{ package_path }}"
